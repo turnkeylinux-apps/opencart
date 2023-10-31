@@ -1,6 +1,5 @@
 Store front: https://$ipaddr/
-Admin panel: https://$ipaddr/admin
+Admin panel: https://$ipaddr/turnkey_admin
 
-Web shell:  https://$ipaddr:12320
 Webmin:     https://$ipaddr:12321
 SSH/SFTP:   root@$ipaddr (port 22)

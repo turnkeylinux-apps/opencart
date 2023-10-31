@@ -12,9 +12,9 @@ import os
 import re
 import sys
 import getopt
+from passlib.apps import phpass_context
 from libinithooks import inithooks_cache
 import time
-import hashlib
 
 from libinithooks.dialog_wrapper import Dialog
 from mysqlconf import MySQL
@@ -88,29 +88,25 @@ def main():
         return prefix + hex(int(time.time()))[2:10] + hex(int(time.time() * 1000000) % 0x100000)[2:7]
 
     subprocess.run(["sed", "-ri",
-        "s|('HTTP(S?)_SERVER',) '.*'|\\1 'http\\L\\2://%s/'|g" % domain,
+        "s|('HTTP(S?)_SERVER',) '.*'|\\1 'https\\L\\2://%s/'|g" % domain,
         "/var/www/opencart/config.php"])
     subprocess.run(["sed", "-ri",
-        "s|('HTTP(S?)_SERVER',) '.*'|\\1 'http\\L\\2://%s/admin/'|g" % domain, 
-        "/var/www/opencart/admin/config.php"])
+        "s|('HTTP(S?)_SERVER',) '.*'|\\1 'https\\L\\2://%s/turnkey_admin/'|g" % domain, 
+        "/var/www/opencart/turnkey_admin/config.php"])
     subprocess.run(["sed", "-ri",
-        "s|('HTTP(S?)_CATALOG',) '.*'|\\1 'http\\L\\2://%s/'|g" % domain,
-        "/var/www/opencart/admin/config.php"])
-    salt = hashlib.md5(php_uniqid(str(randint(100000000, 999999999))).encode('utf8')).hexdigest()[:9]
+        "s|('HTTP(S?)_CATALOG',) '.*'|\\1 'https\\L\\2://%s/'|g" % domain,
+        "/var/www/opencart/turnkey_admin/config.php"])
 
     apache_conf = "/etc/apache2/sites-available/opencart.conf"
     subprocess.run(["sed", "-i", "\|RewriteRule|s|https://.*|https://%s/\$1 [R,L]|" % domain, apache_conf])
     subprocess.run(["sed", "-i", "\|RewriteCond|s|!^.*|!^%s$|" % domain, apache_conf])
     subprocess.run(["service", "apache2", "restart"])
 
-    password_hash = hashlib.sha1(password.encode('utf8')).hexdigest()
-    password_hash = hashlib.sha1((salt + password_hash).encode('utf8')).hexdigest()
-    password_hash = hashlib.sha1((salt + password_hash).encode('utf8')).hexdigest()
+    password_hash = phpass_context.hash(password)
 
     m = MySQL()
     m.execute('UPDATE opencart.oc_user SET email=%s WHERE username="admin"', (email,))
     m.execute('UPDATE opencart.oc_user SET password=%s WHERE username="admin"', (password_hash,))
-    m.execute('UPDATE opencart.oc_user SET salt=%s WHERE username="admin"', (salt,))
 
 if __name__ == "__main__":
     main()

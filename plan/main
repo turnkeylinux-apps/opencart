@@ -7,4 +7,6 @@ php-zip
 php-mbstring
 php-xml
 
+python3-passlib
+
 zlib1g

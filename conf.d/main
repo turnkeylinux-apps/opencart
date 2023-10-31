@@ -11,7 +11,7 @@ STORAGE=$(dirname $WEBROOT)/opencart-storage
 DOMAIN=www.example.com
 
 unzip $SRC/opencart-*.zip -d $SRC/opencart
-mv $SRC/opencart/upload $WEBROOT
+mv $(find $SRC -type d -name "opencart-*")/upload $WEBROOT
 rm -r $SRC/opencart*
 
 cd $WEBROOT
@@ -40,12 +40,18 @@ sed -i "s|'DIR_STORAGE', DIR_SYSTEM . 'storage/'|'DIR_STORAGE', '$STORAGE/'|" $W
 
 service mysql stop
 
-LOCATIONS="$STORAGE/cache/ $STORAGE/download/ $STORAGE/logs/
-    $STORAGE/modification/ $STORAGE/session/ $STORAGE/upload/
-    $STORAGE/vendor/ $WEBROOT/image/ $WEBROOT/image/cache/
+LOCATIONS="$WEBROOT/image/ $WEBROOT/image/cache/
     $WEBROOT/image/catalog/ $WEBROOT/config.php $WEBROOT/admin/config.php
-    $WEBROOT/catalog/"
+    $WEBROOT/catalog/ $STORAGE/cache/ $STORAGE/download/ $STORAGE/logs/
+    $STORAGE/session/ $STORAGE/upload/
+    $STORAGE/vendor/"
 
 for location in $LOCATIONS; do
     chown -R www-data:www-data $location
 done
+
+# opencart 4.0 shows a nagging alert
+# about moving 'admin' directory from the default location
+mv $WEBROOT/admin $WEBROOT/turnkey_admin
+sed -i "s|admin|turnkey_admin|g" $WEBROOT/turnkey_admin/config.php
+
