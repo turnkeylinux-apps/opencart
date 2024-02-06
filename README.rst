@@ -14,6 +14,8 @@ and on top of that:
   - Installed from upstream source zip file to /var/www/opencart and
     /var/www/opencart-storage.
 
+  - Admin page located at https://YOUR_SERVER/turnkey_admin
+
     **Security note**: Updates to OpenCart may require supervision so
     they **ARE NOT** configured to install automatically. See the `OpenCart
     docs`_ for info on updating OpenCart.
