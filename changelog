@@ -87,6 +87,7 @@ turnkey-opencart-18.0 (1) turnkey; urgency=low
     PHP_MAX_INPUT_VARS).
 
   * Use MariaDB (MySQL replacement) v10.11.3 (from debian repos).
+ 
  -- Jeremy Davis <jeremy@turnkeylinux.org>  Tue, 06 Feb 2024 01:41:52 +0000
 
 turnkey-opencart-17.1 (1) turnkey; urgency=low
