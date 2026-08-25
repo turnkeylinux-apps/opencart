@@ -21,7 +21,7 @@ systemctl --quiet is-enabled apache2.service mariadb.service postfix.service cro
 apache2ctl -t
 test "$(sed -n "s/^define('VERSION', '\([^']*\)').*/\1/p" /var/www/opencart/index.php)" = 4.1.0.4
 
-curl --insecure --fail --silent --show-error \
+curl --insecure --fail --silent --show-error --location \
     --cookie "$cookie" --cookie-jar "$cookie" \
     "$admin_base/" >"$page"
 grep -Fq 'id="form-login"' "$page"
