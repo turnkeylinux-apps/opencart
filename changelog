@@ -1,3 +1,16 @@
+turnkey-opencart-19.0 (1) turnkey; urgency=low
+
+  * Install OpenCart 4.1.0.4 from the official upstream release archive and
+    verify its published SHA-256 digest during the build.
+
+  * Update the installer, MariaDB bootstrap and administrator password reset
+    for Debian 13 Trixie and PHP 8.4.
+
+  * Verify administrator authentication, product creation and display,
+    restart persistence, and the supervised upstream update channel.
+
+ -- TurnKey GNU/Linux Team <admin@turnkeylinux.org>  Tue, 25 Aug 2026 00:00:00 +0000
+
 turnkey-opencart-18.0 (1) turnkey; urgency=low
 
   * Moved admin directory to turnkey-admin.

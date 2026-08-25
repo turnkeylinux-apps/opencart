@@ -8,17 +8,12 @@ Option:
                 DEFAULT="www.example.com"
 """
 
-import os
-import re
 import sys
 import getopt
-from passlib.apps import phpass_context
 from libinithooks import inithooks_cache
-import time
 
 from libinithooks.dialog_wrapper import Dialog
 from mysqlconf import MySQL
-from random import randint
 import subprocess
 
 
@@ -84,25 +79,28 @@ def main():
 
     inithooks_cache.write('APP_DOMAIN', domain)
     
-    def php_uniqid(prefix=''):
-        return prefix + hex(int(time.time()))[2:10] + hex(int(time.time() * 1000000) % 0x100000)[2:7]
-
     subprocess.run(["sed", "-ri",
         "s|('HTTP(S?)_SERVER',) '.*'|\\1 'https\\L\\2://%s/'|g" % domain,
-        "/var/www/opencart/config.php"])
+        "/var/www/opencart/config.php"], check=True)
     subprocess.run(["sed", "-ri",
         "s|('HTTP(S?)_SERVER',) '.*'|\\1 'https\\L\\2://%s/turnkey_admin/'|g" % domain, 
-        "/var/www/opencart/turnkey_admin/config.php"])
+        "/var/www/opencart/turnkey_admin/config.php"], check=True)
     subprocess.run(["sed", "-ri",
         "s|('HTTP(S?)_CATALOG',) '.*'|\\1 'https\\L\\2://%s/'|g" % domain,
-        "/var/www/opencart/turnkey_admin/config.php"])
+        "/var/www/opencart/turnkey_admin/config.php"], check=True)
 
     apache_conf = "/etc/apache2/sites-available/opencart.conf"
-    subprocess.run(["sed", "-i", "\|RewriteRule|s|https://.*|https://%s/\$1 [R,L]|" % domain, apache_conf])
-    subprocess.run(["sed", "-i", "\|RewriteCond|s|!^.*|!^%s$|" % domain, apache_conf])
-    subprocess.run(["service", "apache2", "restart"])
+    subprocess.run(["sed", "-i", "\|RewriteRule|s|https://.*|https://%s/\$1 [R,L]|" % domain, apache_conf], check=True)
+    subprocess.run(["sed", "-i", "\|RewriteCond|s|!^.*|!^%s$|" % domain, apache_conf], check=True)
+    subprocess.run(["service", "apache2", "restart"], check=True)
 
-    password_hash = phpass_context.hash(password)
+    password_hash = subprocess.run(
+        ["php", "-r", "echo password_hash(stream_get_contents(STDIN), PASSWORD_DEFAULT);"],
+        input=password,
+        text=True,
+        check=True,
+        capture_output=True,
+    ).stdout
 
     m = MySQL()
     m.execute('UPDATE opencart.oc_user SET email=%s WHERE username="admin"', (email,))
