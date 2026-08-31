@@ -10,9 +10,9 @@ STORAGE=$(dirname $WEBROOT)/opencart-storage
 
 DOMAIN=www.example.com
 
-unzip $SRC/opencart-*.zip -d $SRC/opencart
-mv $(find $SRC -type d -name "opencart-*")/upload $WEBROOT
-rm -r $SRC/opencart*
+unzip "$SRC/opencart-"*.zip -d "$SRC/opencart"
+mv "$SRC/opencart/upload" "$WEBROOT"
+rm -rf "$SRC/opencart"*
 
 cd $WEBROOT
 mv $WEBROOT/config-dist.php $WEBROOT/config.php
@@ -23,13 +23,14 @@ a2ensite opencart
 a2enmod rewrite
 a2enmod headers
 
-service mysql start
+service mariadb start
 
-MYSQL_BATCH="mysql --user=root --password=$MYSQL_PASS --batch"
-MYSQL_ADMIN="mysqladmin --user=root --password=$MYSQL_PASS"
-
-$MYSQL_ADMIN create $DB_NAME
-$MYSQL_BATCH --execute "grant all privileges on $DB_NAME.* to $DB_USER@localhost identified by '$DB_PASS'"
+MYSQL_BATCH="mariadb --user=root --password=$MYSQL_PASS --batch"
+$MYSQL_BATCH --execute "
+CREATE DATABASE $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
+GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost';
+FLUSH PRIVILEGES;"
 
 cd $WEBROOT/install
 php cli_install.php install --db_hostname localhost --db_username $DB_USER --db_port 3306 --db_database $DB_NAME --db_driver mysqli --db_password $DB_PASS --username admin --password turnkey --email admin@example.com --http_server $DOMAIN/
@@ -38,7 +39,7 @@ mv $WEBROOT/system/storage $STORAGE
 sed -i "s|'DIR_STORAGE', DIR_SYSTEM . 'storage/'|'DIR_STORAGE', '$STORAGE/'|" $WEBROOT/config.php
 sed -i "s|'DIR_STORAGE', DIR_SYSTEM . 'storage/'|'DIR_STORAGE', '$STORAGE/'|" $WEBROOT/admin/config.php
 
-service mysql stop
+service mariadb stop
 
 LOCATIONS="$WEBROOT/image/ $WEBROOT/image/cache/
     $WEBROOT/image/catalog/ $WEBROOT/config.php $WEBROOT/admin/config.php
@@ -54,4 +55,3 @@ done
 # about moving 'admin' directory from the default location
 mv $WEBROOT/admin $WEBROOT/turnkey_admin
 sed -i "s|admin|turnkey_admin|g" $WEBROOT/turnkey_admin/config.php
-

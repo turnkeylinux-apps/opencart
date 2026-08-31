@@ -11,14 +11,15 @@ and on top of that:
 
 - OpenCart configurations:
 
-  - Installed from upstream source zip file to /var/www/opencart and
-    /var/www/opencart-storage.
+  - OpenCart 4.1.0.4 is installed from the official upstream release archive
+    to /var/www/opencart and /var/www/opencart-storage. The build verifies the
+    SHA-256 digest published with the release asset.
 
   - Admin page located at https://YOUR_SERVER/turnkey_admin
 
-    **Security note**: Updates to OpenCart may require supervision so
-    they **ARE NOT** configured to install automatically. See the `OpenCart
-    docs`_ for info on updating OpenCart.
+    **Security note**: OpenCart updates require supervision and are not
+    installed automatically. Back up the database and application data before
+    following the `OpenCart upgrade documentation`_.
   
 - SSL support out of the box.
 - `Adminer`_ administration frontend for MySQL (listening on port
@@ -37,4 +38,4 @@ Credentials *(passwords set at first boot)*
 .. _OpenCart: https://www.opencart.com/
 .. _TurnKey Core: https://www.turnkeylinux.org/core
 .. _Adminer: https://www.adminer.org/
-.. _OpenCart docs: https://docs.opencart.com/en-gb/upgrading/
+.. _OpenCart upgrade documentation: https://docs.opencart.com/admin-interface/system/maintenance/upgrade
